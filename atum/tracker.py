@@ -53,6 +53,9 @@ class WorkClock():
         self._sync_db()
         if self.is_clocked_in:
             time_delta = self.expected_end_time - datetime.now()
+            if time_delta.days < 0:
+                self.reset_clock()
+                return f"You're done for today!"
             return f"Clocked in at: {self.start_time}. Remaining {str(time_delta).partition('.')[0]}"
         else:
             return "Not on duty."
