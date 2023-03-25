@@ -56,7 +56,7 @@ class WorkClock():
             if time_delta.days < 0:
                 self.reset_clock()
                 return f"You're done for today!"
-            return f"Clocked in at: {self.start_time}. Remaining {str(time_delta).partition('.')[0]}"
+            return f"Clocked in at: {self.start_time.strftime('%A %I:%M:%S %p')}. Expected to end: {self.expected_end_time.strftime('%A %I:%M:%S %p')}. Remaining {str(time_delta).partition('.')[0]}"
         else:
             return "Not on duty."
 
