@@ -1,13 +1,12 @@
 import curses
 from atum.tracker import workclock
-from .widgets import CommandList, CommandListEntry
+from .widgets import CommandList, CommandListEntry, MainInputBox
 from curses import wrapper
 
 
 def _main(stdscr: curses.window):
     curses.curs_set(0)
-    curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    GREEN_AND_BLACK = curses.color_pair(1)
+
     # Show status
     status_window = stdscr.subwin(5, 100, 0, 0)
     status_window.box()
@@ -22,8 +21,19 @@ def _main(stdscr: curses.window):
     status_pad.refresh()
 
     # Show Commands
+    input_box = MainInputBox()
+
+    def take_break():
+        usr_input = int(input_box.get_input("15"))
+        workclock.take_break(usr_input)
+
+    def clock_in_with_time():
+        usr_input = input_box.get_input("8:00")
+        workclock.clock_in(usr_input)
+
     command_list = [
-        CommandListEntry("Clock In", workclock.clock_in),
+        CommandListEntry("Clock In", clock_in_with_time),
+        CommandListEntry("Take a break", take_break),
         CommandListEntry("Reset Clock", workclock.reset_clock),
     ]
 
