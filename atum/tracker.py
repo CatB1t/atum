@@ -1,16 +1,21 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import shelve
+import sys
+import os
 
 
 class WorkClock:
     def __init__(self, config_file_name: str = "AtumWorkClock.muta"):
         self.config_file_name = config_file_name
+        self.config_file_path = os.path.join(
+            sys.modules["atum"].__path__[0], config_file_name
+        )
         self.is_clocked_in = False
         self._sync_db()
 
     def _sync_db(self):
-        with shelve.open(self.config_file_name) as db_file:
+        with shelve.open(self.config_file_path) as db_file:
             if "start_time" in db_file:
                 # TODO Check if we actually finished work
                 self.is_clocked_in = True
@@ -29,7 +34,7 @@ class WorkClock:
 
         time_clocked_in = datetime.now()
         parsed_time = datetime.strptime(work_hours_and_minutes, "%H:%M")
-        with shelve.open(self.config_file_name) as db_file:
+        with shelve.open(self.config_file_path) as db_file:
             db_file["start_time"] = time_clocked_in
             db_file["expected_end_time"] = time_clocked_in + timedelta(
                 hours=parsed_time.hour, minutes=parsed_time.minute
@@ -42,7 +47,7 @@ class WorkClock:
         if not self.is_clocked_in:
             return "Not clocked in"
 
-        with shelve.open(self.config_file_name) as db_file:
+        with shelve.open(self.config_file_path) as db_file:
             old_time = db_file["expected_end_time"]
             db_file["expected_end_time"] += timedelta(minutes=minutes)
             self.expected_end_time = db_file["expected_end_time"]
@@ -67,7 +72,7 @@ class WorkClock:
             return "Not clocked in"
 
         self.is_clocked_in = False
-        with shelve.open(self.config_file_name) as db_file:
+        with shelve.open(self.config_file_path) as db_file:
             del db_file["start_time"]
             del db_file["expected_end_time"]
 
