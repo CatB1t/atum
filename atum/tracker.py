@@ -56,16 +56,20 @@ class WorkClock:
         return f"Break for {minutes}, expected to end work at: {self.expected_end_time}. was {old_time}"
 
     @property
-    def status(self) -> str:
+    def status(self) -> tuple[str, str, str] | None:
         self._sync_db()
-        if self.is_clocked_in:
-            time_delta = self.expected_end_time - datetime.now()
-            if time_delta.days < 0:
-                self.reset_clock()
-                return f"You're done for today!"
-            return f"Clocked in at: {self.start_time.strftime('%A %I:%M:%S %p')}. Expected to end: {self.expected_end_time.strftime('%A %I:%M:%S %p')}. Remaining {str(time_delta).partition('.')[0]}"
-        else:
-            return "Not on duty."
+        if not self.is_clocked_in:
+            return
+        time_delta = self.expected_end_time - datetime.now()
+        # if time_delta.days < 0:
+        #     self.reset_clock()
+        #     return f"You're done for today!"
+        # return f"Clocked in at: {self.start_time.strftime('%A %I:%M:%S %p')}. Expected to end: {self.expected_end_time.strftime('%A %I:%M:%S %p')}. Remaining {str(time_delta).partition('.')[0]}"
+        return (
+            self.start_time.strftime("%A %I:%M:%S %p"),
+            self.expected_end_time.strftime("%A %I:%M:%S %p"),
+            str(time_delta).partition(".")[0],
+        )
 
     def reset_clock(self) -> str:
         if not self.is_clocked_in:
