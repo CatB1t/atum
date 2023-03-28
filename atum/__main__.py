@@ -48,6 +48,7 @@ def _main(stdscr: curses.window):
         CommandListEntry("End Task", task_tracker.end_task),
         # CommandListEntry("Show Tasks", None),
         CommandListEntry("Take a break", take_break),
+        CommandListEntry("Cancel Break", workclock.cancel_break),
         CommandListEntry("Clock In", clock_in_with_time),
         CommandListEntry("Reset Clock", workclock.reset_clock),
     ]
@@ -68,16 +69,24 @@ def _main(stdscr: curses.window):
             work_status_color = RED_AND_BLACK
 
         if workclock.is_clocked_in:
-            start_time, end_time, remaining_time = workclock.status
-            work_status_pad.addstr(
-                1,
-                0,
-                f"Clocked in at {start_time}. Finish at {end_time}",
-                work_status_color,
-            )
-            work_status_pad.addstr(
-                2, 0, f"Remaining work hours: {remaining_time}", work_status_color
-            )
+            if workclock.is_on_break:
+                work_status_pad.addstr(
+                    1,
+                    0,
+                    f"On break. Remaining {workclock.remaining_break_duration}",
+                    work_status_color,
+                )
+            else:
+                start_time, end_time, remaining_time = workclock.status
+                work_status_pad.addstr(
+                    1,
+                    0,
+                    f"Clocked in at {start_time}. Finish at {end_time}",
+                    work_status_color,
+                )
+                work_status_pad.addstr(
+                    2, 0, f"Remaining work hours: {remaining_time}", work_status_color
+                )
             work_status_pad.refresh()
         else:
             work_status_pad.addstr(1, 0, "Not on duty.", work_status_color)
