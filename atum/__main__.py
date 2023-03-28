@@ -5,6 +5,10 @@ from .widgets import CommandList, CommandListEntry, MainInputBox
 from curses import wrapper
 
 
+print_tasks = False
+should_exit_atum = False
+
+
 def _main(stdscr: curses.window):
     curses.curs_set(0)
 
@@ -43,20 +47,26 @@ def _main(stdscr: curses.window):
         usr_input = input_box.get_input("")
         task_tracker.start_task(usr_input)
 
+    def print_tasks_and_exit():
+        global print_tasks, should_exit_atum
+        print_tasks = True
+        should_exit_atum = True
+
     command_list = [
         CommandListEntry("Start Task", start_task_input),
         CommandListEntry("End Task", task_tracker.end_task),
-        # CommandListEntry("Show Tasks", None),
+        CommandListEntry("Show Tasks", print_tasks_and_exit),
+        CommandListEntry("Clear Tasks", task_tracker.clear_tasks),
+        CommandListEntry("Clock In", clock_in_with_time),
         CommandListEntry("Take a break", take_break),
         CommandListEntry("Cancel Break", workclock.cancel_break),
-        CommandListEntry("Clock In", clock_in_with_time),
         CommandListEntry("Reset Clock", workclock.reset_clock),
     ]
 
     main_commands = CommandList(stdscr, STATUS_BOX_SIZE_Y, 0, command_list)
     stdscr.nodelay(True)
 
-    while True:
+    while not should_exit_atum:
         work_status_pad.erase()
         task_status_pad.erase()
 
@@ -118,6 +128,14 @@ def _main(stdscr: curses.window):
             else:
                 main_commands.handle(usr_input)
 
+    curses.endwin()
+
+
+def _postprocess():
+    if print_tasks:
+        print(task_tracker.get_tasks())
+
 
 def main():
     wrapper(_main)
+    _postprocess()

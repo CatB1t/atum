@@ -25,7 +25,7 @@ class TaskTracker:
         )
         self.current_task_start_time = None
         self.current_task = None
-        self.current_task_name = ""
+        self.current_task_name = None
         self.tasks = {}
         if os.path.exists(self.absolute_tasks_file_path):
             with open(self.absolute_tasks_file_path) as json_file:
@@ -77,11 +77,19 @@ class TaskTracker:
         self.current_task_name = None
         self._write_task_records()
 
-    def show_tasks(self):  # TODO remove
+    def get_tasks(self):
+        ret = ""
         for key, value in self.tasks.items():
-            print(
-                f"Name: {key}, Start time: {value.start_time.strftime('%H:%M:%S')}, Time taken: {value.time}"
-            )
+            ret += f"Name: {key}, Start time: {value.start_time.strftime('%H:%M:%S')}, "
+            f"Time taken: {value.time}\n"
+        return ret
+
+    def clear_tasks(self):
+        self.tasks = {}
+        self.current_task = None
+        self.current_task_name = None
+        if os.path.exists(self.absolute_tasks_file_path):
+            os.remove(self.absolute_tasks_file_path)
 
 
 task_tracker = TaskTracker()
