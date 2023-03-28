@@ -77,10 +77,9 @@ class WorkClock:
         if not self.is_clocked_in:
             return
         time_delta = self.expected_end_time - datetime.now()
-        # if time_delta.days < 0:
-        #     self.reset_clock()
-        #     return f"You're done for today!"
-        # return f"Clocked in at: {self.start_time.strftime('%A %I:%M:%S %p')}. Expected to end: {self.expected_end_time.strftime('%A %I:%M:%S %p')}. Remaining {str(time_delta).partition('.')[0]}"
+        if time_delta.days < 0:
+            self.reset_clock()
+            return
         return (
             self.start_time.strftime("%A %I:%M:%S %p"),
             self.expected_end_time.strftime("%A %I:%M:%S %p"),
