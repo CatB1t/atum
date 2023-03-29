@@ -80,8 +80,7 @@ class TaskTracker:
     def get_tasks(self):
         ret = ""
         for key, value in self.tasks.items():
-            ret += f"Name: {key}, Start time: {value.start_time.strftime('%H:%M:%S')}, "
-            f"Time taken: {value.time}\n"
+            ret += f"Name: {key}. Time: {value.time}\n"
         return ret
 
     def clear_tasks(self):
