@@ -33,18 +33,18 @@ def _main(stdscr: curses.window):
     )
 
     # Show Commands
-    input_box = MainInputBox()
+    input_box = MainInputBox(stdscr)
 
     def take_break():
-        usr_input = int(input_box.get_input("15"))
+        usr_input = int(input_box.get_input("Enter break time (in minutes)", "15"))
         workclock.take_break(usr_input)
 
     def clock_in_with_time():
-        usr_input = input_box.get_input("8:00")
+        usr_input = input_box.get_input("Enter working time (H:M)", "8:00")
         workclock.clock_in(usr_input)
 
     def start_task_input():
-        usr_input = input_box.get_input("")
+        usr_input = input_box.get_input("Enter task title:", "")
         task_tracker.start_task(usr_input)
 
     def print_tasks_and_exit():

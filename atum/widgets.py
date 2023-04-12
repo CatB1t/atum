@@ -1,40 +1,49 @@
-from collections import namedtuple
 import curses
+from collections import namedtuple
+from curses import panel, textpad
 
 CommandListEntry = namedtuple("CommandListEntry", ["name", "fn"])
 
 
 class MainInputBox:
-    def __new__(cls):
+    def __new__(cls, *args, **kwargs):
         if not hasattr(cls, "instance"):
             cls.instance = super(MainInputBox, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self):
-        self.window = curses.newwin(1, curses.COLS, curses.LINES - 1, 0)
-        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        self.WHITE_AND_BLACK = curses.color_pair(1)
-        self.BLACK_AND_WHITE = curses.color_pair(2)
+    def __init__(self, stdscr: curses.window):
+        self.main_window = stdscr
+        ncols, nlines = 90, 1
+        max_y, max_x = self.main_window.getmaxyx()
+        y_center, x_center = max_y // 2, max_x // 2
+        uly = y_center - nlines // 2
+        lry = y_center + nlines // 2
+        ulx = x_center - ncols // 2
+        lrx = x_center + ncols // 2
+        self.win = curses.newwin(lry - uly + 3, lrx - ulx - 1, uly, ulx)
+        self.win.box()
+        self._panel = panel.new_panel(self.win)
+        self.textpad_win = self.win.subwin(
+            lry - uly + 1, lrx - ulx - 3, uly + 1, ulx + 1
+        )
+        self.textpad_obj = textpad.Textbox(self.textpad_win)
 
-    def get_input(self, default_value):
+    def get_input(self, prompt, default_value):
+        if self._panel.hidden():
+            self.textpad_win.clear()
+            self._panel.show()
+        self.win.box()
+        self.win.addstr(0, 2, prompt)
+        self.textpad_win.addstr(default_value)
         curses.curs_set(True)
-        curses.echo(True)
-        self.window.bkgd(" ", self.WHITE_AND_BLACK)
-        self.window.insstr(0, 0, default_value)
-        self.window.refresh()
-
-        str_input = self.window.getstr(0, 0).decode(self.window.encoding)
-
+        self._panel.window().refresh()
+        self.main_window.refresh()
+        self.textpad_obj.edit()
+        self._panel.hide()
+        panel.update_panels()
+        self.main_window.refresh()
         curses.curs_set(False)
-        curses.echo(False)
-        self.window.erase()
-        self.window.bkgd(" ", self.BLACK_AND_WHITE)
-        self.window.refresh()
-
-        if str_input == "":
-            return default_value
-        return str_input
+        return self.textpad_obj.gather().strip()
 
 
 class CommandList:
