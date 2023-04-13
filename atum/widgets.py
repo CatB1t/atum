@@ -35,6 +35,7 @@ class MainInputBox:
         self.win.box()
         self.win.addstr(0, 2, prompt)
         self.textpad_win.addstr(default_value)
+        self.textpad_win.move(0, 0)
         curses.curs_set(True)
         self._panel.window().refresh()
         self.main_window.refresh()
