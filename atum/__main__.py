@@ -40,11 +40,13 @@ def _main(stdscr: curses.window):
         workclock.take_break(usr_input)
 
     def clock_in_with_time():
-        usr_input = input_box.get_input("Enter working time (H:M)", "8:00")
+        usr_input = input_box.get_input("Enter working time (HH:MM)", "08:00")
         workclock.clock_in(usr_input)
 
     def start_task_input():
         usr_input = input_box.get_input("Enter task title:", "")
+        if usr_input.strip() == "":
+            return
         task_tracker.start_task(usr_input)
 
     def print_tasks_and_exit():
